@@ -57,6 +57,26 @@ docker compose up -d
 
 # Configuration
 
+By default, LiveSync Bridge reads `./dat/config.json`. Set `LSB_CONFIG` to use
+a different configuration file path.
+
+The complete configuration can instead be supplied as JSON through
+`LSB_CONFIG_JSON`:
+
+```bash
+LSB_CONFIG_JSON='{"peers":[{"type":"storage","name":"storage","baseDir":"./data"}]}' deno task run
+```
+
+When `LSB_CONFIG_JSON` is set, it takes precedence over `LSB_CONFIG` and no
+configuration file is read. The same variable can be used with Docker Compose:
+
+```yaml
+services:
+  bridge:
+    environment:
+      LSB_CONFIG_JSON: '{"peers":[{"type":"storage","name":"storage","baseDir":"./data"}]}'
+```
+
 The configuration file consists of the following structure.
 
 ```jsonc

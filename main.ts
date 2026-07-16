@@ -2,6 +2,7 @@ import { defaultLoggerEnv } from "./lib/src/common/logger.ts";
 import { LOG_LEVEL_DEBUG } from "./lib/src/common/logger.ts";
 import { Hub } from "./Hub.ts";
 import { Config } from "./types.ts";
+import { loadConfig } from "./config.ts";
 import { parseArgs } from "jsr:@std/cli";
 import { dirname } from "@std/path";
 
@@ -32,8 +33,7 @@ if (flags.reset) {
     localStorage.clear();
 }
 try {
-    const confText = await Deno.readTextFile(configFile);
-    config = JSON.parse(confText);
+    config = await loadConfig(configFile, Deno.env.get(`${KEY}CONFIG_JSON`));
 } catch (ex) {
     console.error("Could not parse configuration!");
     console.error(ex);
