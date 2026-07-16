@@ -49,10 +49,37 @@ git clone https://github.com/vrtmrz/livesync-bridge
 2. Open the config file dat/config.sample.json, edit and save to
    dat/config.json. (The storage folder has to start with "data/" to be in the volume)
 
-3. Simply run like this.
+3. Create the bind-mount directories and make them writable by the host user
+   that the container will match:
+
 ```bash
-docker compose up -d
+mkdir -p data dat
+sudo chown -R "$(id -u):$(id -g)" data dat
 ```
+
+Compose deliberately uses `create_host_path: false`, so it fails instead of
+silently creating a root-owned host directory when either path is missing.
+
+4. Build and start with the host user's numeric IDs:
+
+```bash
+APP_UID="$(id -u)" APP_GID="$(id -g)" docker compose up -d --build
+```
+
+### Container user and bind-mount permissions
+
+The image runs as a non-root user with UID and GID `1000` by default. Compose
+passes `APP_UID` and `APP_GID` into the image build, so the command above matches
+the container user to the owner of the bind-mounted `data` and `dat` paths.
+
+Numeric UID/GID matching is primarily intended for rootful Docker on Linux.
+Rootless Docker, user-namespace remapping, and Docker Desktop translate file
+ownership differently and may require platform-specific permissions. Custom IDs
+can also collide with accounts already present in the base image, in which case
+the image build fails rather than changing an unrelated account.
+
+Existing bind mounts keep their current ownership. Adjust their ownership before
+switching IDs; do not make the vault world-writable.
 
 
 # Configuration
