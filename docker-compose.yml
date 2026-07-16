@@ -2,9 +2,21 @@ version: "2.1"
 name: "obsidian-livesync-bridge"
 services:
   bridge:
-    build: .
+    build:
+      context: .
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
     image: localhost/livesync-bridge:latest
     volumes:
-      - ./data:/app/data
-      - ./dat:/app/dat
+      - type: bind
+        source: ./data
+        target: /app/data
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./dat
+        target: /app/dat
+        bind:
+          create_host_path: false
     restart: unless-stopped
